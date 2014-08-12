@@ -31,7 +31,7 @@ admin.add_view(ModelView(User, db.session))
 
 @app.route('/')
 def hello():
-    return 'Hello World!'
+    return render_template('index.html')
 
 ##################################################
 #                    Main
