@@ -2,7 +2,8 @@ Flask==0.9
 Jinja2==2.6
 Werkzeug==0.8.3
 wsgiref==0.1.2
+
 flask-heroku==0.1.9
 flask-sqlalchemy==1.0
 psycopg2==2.5.3
-Flask-Admin 1.0.8
+Flask-Admin==1.0.8
