@@ -1,6 +1,7 @@
 import os
 
 from flask import Flask
+from flask import render_template
 from flask.ext.admin import Admin
 from flask.ext.admin.contrib.sqla import ModelView
 from flask.ext.heroku import Heroku
