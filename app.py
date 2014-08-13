@@ -15,7 +15,8 @@ heroku = Heroku(app)
 db = SQLAlchemy(app)
 admin = Admin(app)
 
-app.config['PROPAGATE_EXCEPTIONS'] = True
+#app.config['PROPAGATE_EXCEPTIONS'] = True
+app.debug = True
 
 ##################################################
 #                    Models
