@@ -1,15 +1,30 @@
 <!doctype html>
 <html>
-	<head>
-		<title>Outcade</title>
-	</head>
-	<body>
-		<h1>Outcade</h1>
-		<hr/>
-		<div class="content">
-			{% block body %}{% endblock %}
-		</div>
-		<hr/>
-		Go to <a href="{{ url_for('admin.index') }}">Admin</a>
-	</body>
+    <head>
+        <title>Outcade</title>
+        <link rel="stylesheet" href="{{url_for('static', filename='css/main.css')}}" type="text/css" />
+        <link rel="shortcut icon" href="{{url_for('static', filename='img/favicon.png')}}"/>
+    </head>
+    <body>
+        <header class="frame">
+            <span class="title">
+                <a href="{{url_for('splash')}}">Outcade</a>
+            </span>
+            <span class="user_links">
+                {%if request.user%}
+                    <a href="{{url_for('logout')}}">Logout</a>
+                    {%if request.user.is_admin%}
+                        <span class="admin_link">
+                            Go to <a href="{{ url_for('admin.index') }}">Admin</a>
+                        </span>
+                    {%endif%}
+                {%else%}
+                    Welcome!
+                {%endif%}
+            </span>
+        </header>
+        <article class="frame">
+            {% block body %}{% endblock %}
+        </article>
+    </body>
 </html>

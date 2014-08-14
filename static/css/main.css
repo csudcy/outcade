@@ -1,0 +1,67 @@
+/**********************************\
+            Main Layout
+\**********************************/
+body>* {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    margin: 5px;
+}
+
+body>header {
+    top: 0px;
+    height: 50px;
+}
+
+body>article {
+    top: 50px;
+    bottom: 0px;
+}
+
+.frame {
+    border: 1px solid black;
+    border-radius: 5px;
+}
+
+/**********************************\
+            Base sections
+\**********************************/
+
+.title {
+    font-size: 40px;
+    font-weight: bold;
+    margin-left: 10px;
+}
+.title a {
+    text-decoration: none;
+    color: initial;
+}
+
+.user_links {
+    float: right;
+    margin-right: 10px;
+}
+
+.admin_link {
+    float: right;
+    margin-right: 10px;
+}
+
+/**********************************\
+            Login page
+\**********************************/
+
+.login_outer {
+    text-align: center;
+}
+.login {
+    display: inline-block;
+    margin-top: 200px;
+    padding: 20px;
+    text-align: center;
+}
+.login_error {
+    background-color: lightcoral;
+    padding: 5px;
+    margin-top: 10px;
+}

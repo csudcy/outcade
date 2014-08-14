@@ -1,5 +1,25 @@
 {% extends "base.html" %}
 
 {% block body %}
-	I am a template!
+    <div class="login_outer">
+        <span class="login frame">
+            <form action="{{url_for('login')}}" method="POST">
+                <label for="username">Username:</label>
+                <input type="text" name="username" id="username"/>
+                <br/>
+                <label for="password">Password:</label>
+                <input type="password" name="password" id="password"/>
+                <br/>
+                <button type="submit">
+                    Login
+                </button>
+            </form>
+            {%if request.args.error%}
+                <div class="login_error frame">
+                    Login failed!<br/>
+                    Are you using your exchange login details?
+                </div>
+            {%endif%}
+        </div>
+    </div>
 {% endblock %}
