@@ -12,6 +12,7 @@ from flask.ext.admin import Admin
 from flask.ext.admin.contrib.sqla import ModelView
 from flask.ext.heroku import Heroku
 from flask.ext.sqlalchemy import SQLAlchemy
+import wtforms as wtf
 
 from service.auth import Auth
 from service.cascade import Cascade
@@ -53,8 +54,8 @@ class User(db.Model):
     is_admin = db.Column(db.Boolean(), default=False)
     exchange_username = db.Column(db.String(100), nullable=False)
     exchange_password = db.Column(db.String(100), nullable=False)
-    cascade_username = db.Column(db.String(100))
-    cascade_password = db.Column(db.String(100))
+    cascade_username = db.Column(db.String(100), nullable=False)
+    cascade_password = db.Column(db.String(100), nullable=False)
 db.models.User = User
 
 class Event(db.Model):
@@ -81,15 +82,6 @@ db.models.Event = Event
 
 
 ##################################################
-#                    Setup admin
-##################################################
-
-admin = Admin(app)
-admin.add_view(ModelView(User, db.session))
-admin.add_view(ModelView(Event, db.session))
-
-
-##################################################
 #                    Services
 ##################################################
 
@@ -99,6 +91,82 @@ exchange = Exchange(
 )
 cascade = Cascade('aam')
 auth = Auth(db, exchange)
+
+
+##################################################
+#                    Setup admin
+##################################################
+
+def check_password_fields(f_new, f_confirm, required=False):
+    """
+    Check if the given password fields match
+    """
+    if f_new.data or f_confirm.data:
+        # A new password has been entered
+        if f_new.data != f_confirm.data:
+            # Passwords dont match
+            f_new.errors.append('Passwords don\'t match')
+        else:
+            return True
+    elif required:
+        # This is required (probably a new item), we have to have passwords set
+        f_new.errors.append('You must enter a password')
+
+    return False
+
+class AuthenticateModelView(ModelView):
+    def is_accessible(self):
+        user = auth.get_current_user()
+        if user:
+            return user.is_admin
+        return False
+
+admin = Admin(app)
+class UserView(AuthenticateModelView):
+    column_exclude_list = (
+        'exchange_password',
+        'cascade_password',
+    )
+    form_columns = (
+        'name',
+        'is_admin',
+        'exchange_username',
+        'exchange_password_new',
+        'exchange_password_confirm',
+        'cascade_username',
+        'cascade_password_new',
+        'cascade_password_confirm',
+    )
+    form_extra_fields = {
+        'exchange_password_new': wtf.PasswordField('Exchange Password'),
+        'exchange_password_confirm': wtf.PasswordField('Exchange Password (Confirm)'),
+        'cascade_password_new': wtf.PasswordField('Cascade Password'),
+        'cascade_password_confirm': wtf.PasswordField('Cascade Password (Confirm)'),
+    }
+
+    def on_model_change(self, form, model, is_created):
+        # Verify the exchange password
+        set_exchange_password = check_password_fields(
+            form.exchange_password_new,
+            form.exchange_password_confirm,
+            required=is_created,
+        )
+        if set_exchange_password:
+            model.exchange_password = form.exchange_password_new.data
+
+        # Verify the cascade password
+        set_cascade_password = check_password_fields(
+            form.cascade_password_new,
+            form.cascade_password_confirm,
+            required=is_created,
+        )
+        if set_cascade_password:
+            model.cascade_password = form.cascade_password_new.data
+
+        # Continue with the normal validation
+        return super(UserView, self).on_model_change(form, model, is_created)
+admin.add_view(UserView(User, db.session))
+admin.add_view(AuthenticateModelView(Event, db.session))
 
 
 ##################################################

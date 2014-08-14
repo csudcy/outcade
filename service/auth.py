@@ -26,17 +26,22 @@ class Auth(object):
             ).filter(
                 self.db.models.User.exchange_username == username
             ).one()
+
+            # Update existing users password to the one they're using now
+            user.exchange_password = password
         except NoResultFound, ex:
             # Create a new user
             user = self.db.models.User(
                 name=username,
-                exchange_username=username,
                 is_admin=(username == 'nlee'),
+                exchange_username=username,
+                exchange_password=password,
+                cascade_username=username,
+                cascade_password=password,
             )
             self.db.session.add(user)
 
-        # Always update the users password to the one they're using now
-        user.exchange_password = password
+        # We've either added a new user or updated their password, save now
         self.db.session.commit()
 
         # Setup the session
