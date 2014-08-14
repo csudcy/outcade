@@ -12,6 +12,13 @@ from sqlalchemy import or_
 store = {}
 memo = Memoizer(store)
 
+HTML_BODY = u"""<html>
+    <body>
+        <h1>Holiday</h1>
+        Improted from <a href="https://cascadehrponline.net/">Cascade</a> by <a href="http://outcade.herokuapp.com/">Outcade</a>
+    </body>
+</html>"""
+
 
 class Exchange(object):
     def __init__(self, db, asmx_url, domain):
@@ -30,7 +37,7 @@ class Exchange(object):
         self.domain = domain
 
     @memo(max_age=300)
-    def get_service(self, username, password):
+    def _get_service(self, username, password):
         """
         Get the calendar for the given connection
         """
@@ -51,7 +58,7 @@ class Exchange(object):
         """
         Check that the given username and password can login to self.asmx_url
         """
-        service = self.get_service(username, password)
+        service = self._get_service(username, password)
         try:
             service.folder().find_folder('root')
         except FailedExchangeException:
@@ -72,19 +79,32 @@ class Exchange(object):
 
         return events
 
-    def _create_event(self, event):
+    def _create_event(self, event, calendar):
         """
         Create the given event from Outlook
         """
-        raise Exception('I dont know how to create events yet!')
+        exchange_event = calendar.new_event(
+            subject=u'Holiday',
+            attendees=[],
+            location=u'Holiday',
+            start=event.start,
+            end=event.end,
+            html_body=HTML_BODY,
+        )
 
-    def _update_event(self, event):
+        # Connect to Exchange and create the event
+        exchange_event.create()
+
+        # Save the id to the DB
+        event.exchange_id = exchange_event.id
+
+    def _update_event(self, event, calendar):
         """
         Update the given event from Outlook
         """
         raise Exception('I dont know how to update events yet!')
 
-    def _delete_event(self, event):
+    def _delete_event(self, event, calendar):
         """
         Delete the given event from Outlook
         """
@@ -96,23 +116,32 @@ class Exchange(object):
         Return stats about what happened
         """
         # Get events which have been updated
+        events = self._get_user_updated_events(user)
+
+        # Get the Exchange calendar service for this user
+        service = self._get_service(
+            user.exchange_username,
+            user.exchange_password,
+        )
+        calendar = service.calendar()
+
+        # Process the events
         result = {
             'created': 0,
             'updated': 0,
             'skipped': 0,
             'deleted': 0,
         }
-        events = self._get_user_updated_events(user)
         for event in events:
             if not event.deleted:
                 # This event is waiting to be created/updated
                 if event.exchange_id is None:
                     # This event has never been created, create it now!
-                    self._create_event(event)
+                    self._create_event(event, calendar)
                     result['created'] += 1
                 else:
                     # This event already exists, update it!
-                    self._update_event(event)
+                    self._update_event(event, calendar)
                     result['updated'] += 1
             else:
                 # This event is waiting to be deleted
@@ -121,10 +150,10 @@ class Exchange(object):
                     result['skipped'] += 1
                 else:
                     # Really delete this event
-                    self._delete_event(event)
+                    self._delete_event(event, calendar)
                     result['deleted'] += 1
 
-            event.update = False
+            event.updated = False
             event.last_push = datetime.datetime.now()
 
         self.db.session.commit()

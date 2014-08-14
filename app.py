@@ -79,9 +79,8 @@ class Event(db.Model):
     updated = db.Column(db.Boolean(), nullable=False, default=True)
     deleted = db.Column(db.Boolean(), nullable=False, default=False)
 
-    # This is how we find the event in outlook
-    exchange_id = db.Column(db.String(100))
-    exchange_subject = db.Column(db.String(100))
+    # This is how we find the event in outlook (they're really long)
+    exchange_id = db.Column(db.String(200))
 
     # These keep track of whether we need to push updates into exchange
     last_update = db.Column(db.DateTime())
