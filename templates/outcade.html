@@ -1,5 +1,14 @@
 {% extends "base.html" %}
+{% import 'admin/lib.html' as lib with context %}
+
 
 {% block body %}
-    Congratulations, you're logged in!
+    <span class="user_form">
+        <form action="." method="POST" enctype="multipart/form-data">
+            {{ lib.render_form_fields(form) }}
+        </form>
+    </span>
+    <span class="exchange_tip frame">
+        TIP: To change your Exchange password just logout then login again with the new password!
+    </span>
 {% endblock %}

@@ -65,3 +65,25 @@ body>article {
     padding: 5px;
     margin-top: 10px;
 }
+
+/**********************************\
+            Main page
+\**********************************/
+
+.user_form {
+
+}
+
+.exchange_tip {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    height: 30px;
+    margin: 10px;
+    padding: 5px;
+    background-color: lightsteelblue;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+}

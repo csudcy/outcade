@@ -12,6 +12,7 @@ from flask import request
 from flask import session
 from flask import url_for
 from flask.ext.admin import Admin
+from flask.ext.admin import helpers as h
 from flask.ext.admin.contrib.sqla import ModelView
 from flask.ext.heroku import Heroku
 from flask.ext.migrate import Migrate, MigrateCommand
@@ -167,6 +168,16 @@ class AuthenticateModelView(ModelView):
         return False
 
 class UserAdminView(AuthenticateModelView):
+    column_list = (
+        'name',
+        'is_admin',
+        'exchange_username',
+        'exchange_last_sync_time',
+        'exchange_last_sync_status',
+        'cascade_username',
+        'cascade_last_sync_time',
+        'cascade_last_sync_status',
+    )
     form_columns = (
         'name',
         'is_admin',
@@ -283,8 +294,6 @@ def logout():
 @auth.authorised
 def outcade():
     form = user_single_view.edit_form(request.user)
-    import pdb
-    #pdb.set_trace()
     if request.method == 'POST':
         # Update the form with posted values
         form.process(request.form)
@@ -293,7 +302,11 @@ def outcade():
             # Save the form
             form.save()
 
-    return render_template('outcade.html', form=form)
+    return render_template(
+        'outcade.html',
+        form=form,
+        h=h,
+    )
 
 @app.route('/sync_cascade/', methods=['GET', 'POST'])
 @auth.authorised

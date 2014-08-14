@@ -1,9 +1,11 @@
 <!doctype html>
 <html>
     <head>
-        <title>Outcade</title>
-        <link rel="stylesheet" href="{{url_for('static', filename='css/main.css')}}" type="text/css" />
-        <link rel="shortcut icon" href="{{url_for('static', filename='img/favicon.png')}}"/>
+        {% block head %}
+            <title>Outcade</title>
+            <link rel="stylesheet" href="{{url_for('static', filename='css/main.css')}}" type="text/css" />
+            <link rel="shortcut icon" href="{{url_for('static', filename='img/favicon.png')}}"/>
+        {% endblock %}
     </head>
     <body>
         <header class="frame">
@@ -25,7 +27,9 @@
             </span>
         </header>
         <article class="frame">
-            {% block body %}{% endblock %}
+            {% block body %}
+                You probably want to put something here...s
+            {% endblock %}
         </article>
     </body>
 </html>
