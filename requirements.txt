@@ -9,3 +9,5 @@ psycopg2==2.5.3
 Flask-Admin==1.0.8
 pyexchange==0.4.1
 PyMemoize==1.0.1
+requests==2.3.0
+pyquery==1.2.8

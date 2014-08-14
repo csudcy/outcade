@@ -51,11 +51,15 @@ db.models = Models()
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
-    is_admin = db.Column(db.Boolean(), default=False)
+    is_admin = db.Column(db.Boolean(), nullable=False, default=False)
     exchange_username = db.Column(db.String(100), nullable=False)
     exchange_password = db.Column(db.String(100), nullable=False)
+    exchange_last_sync_time = db.Column(db.DateTime())
+    exchange_last_sync_status = db.Column(db.Text())
     cascade_username = db.Column(db.String(100), nullable=False)
     cascade_password = db.Column(db.String(100), nullable=False)
+    cascade_last_sync_time = db.Column(db.DateTime())
+    cascade_last_sync_status = db.Column(db.Text())
 db.models.User = User
 
 class Event(db.Model):
@@ -70,6 +74,7 @@ class Event(db.Model):
     user = db.relationship('User', backref='events')
     start = db.Column(db.DateTime(), nullable=False)
     end = db.Column(db.DateTime(), nullable=False)
+    deleted = db.Column(db.Boolean(), nullable=False, default=False)
 
     # This is how we find the event in outlook
     exchange_id = db.Column(db.String(100))
@@ -86,12 +91,12 @@ db.models.Event = Event
 ##################################################
 
 exchange = Exchange(
+    db,
     'https://outlook.artsalliancemedia.com/EWS/Exchange.asmx',
     'aam'
 )
-cascade = Cascade('aam')
+cascade = Cascade(db, 'arts')
 auth = Auth(db, exchange)
-
 
 ##################################################
 #                    Setup admin
@@ -216,6 +221,10 @@ def outcade():
 if __name__ == '__main__':
     # Ensure all our tables are created
     db.create_all()
+
+    import pdb
+    #cascade.sync()
+    #pdb.set_trace()
 
     # Bind to PORT if defined, otherwise default to 5000.
     port = int(os.environ.get('PORT', 5000))

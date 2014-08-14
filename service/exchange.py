@@ -1,4 +1,3 @@
-
 # http://msdn.microsoft.com/en-us/library/office/dd877045(v=exchg.140).aspx
 # https://pyexchange.readthedocs.org/en/latest/
 
@@ -10,8 +9,10 @@ from pyexchange.exceptions import FailedExchangeException
 store = {}
 memo = Memoizer(store)
 
+
 class Exchange(object):
-    def __init__(self, asmx_url, domain):
+    def __init__(self, db, asmx_url, domain):
+        # Validate what's passed in
         if asmx_url[-5:] != '.asmx':
             possible_url = '{0}/EWS/Exchange.asmx'.format(asmx_url)
             raise Exception(
@@ -19,6 +20,9 @@ class Exchange(object):
                     possible_url
                 )
             )
+
+        # Save everything for later
+        self.db = db
         self.asmx_url = asmx_url
         self.domain = domain
 
