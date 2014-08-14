@@ -1,5 +1,6 @@
 import base64
 import json
+import logging
 import os
 
 from flask import abort
@@ -37,6 +38,9 @@ if 'DATABASE_URL' not in os.environ:
 ##################################################
 #                    Setup
 ##################################################
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
 app.debug = True
@@ -294,6 +298,26 @@ def production():
     # Bind to PORT if defined, otherwise default to 5000.
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
+
+@manager.command
+def sync_cascade():
+    """
+    Sync events from cascade
+    """
+    logger.info('Syncing cascade...')
+    result = cascade.sync()
+    logger.info('Syncing cascade done!')
+    logger.info(json.dumps(result, indent=4))
+
+@manager.command
+def sync_exchange():
+    """
+    Sync events to exchange
+    """
+    logger.info('Syncing exchange...')
+    result = exchange.sync()
+    logger.info('Syncing exchange done!')
+    logger.info(json.dumps(result, indent=4))
 
 
 if __name__ == '__main__':
