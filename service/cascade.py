@@ -3,7 +3,6 @@ from urlparse import urljoin
 import datetime
 import json
 import logging
-import pdb
 import time
 
 import requests

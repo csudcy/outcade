@@ -6,7 +6,7 @@ import datetime
 from memoize import Memoizer
 from pyexchange import Exchange2010Service
 from pyexchange import ExchangeNTLMAuthConnection
-from pyexchange.exceptions import FailedExchangeException
+from pyexchange.exceptions import FailedExchangeException, ExchangeItemNotFoundException
 from sqlalchemy import or_
 
 store = {}
@@ -108,7 +108,15 @@ class Exchange(object):
         """
         Delete the given event from Outlook
         """
-        raise Exception('I dont know how to delete events yet!')
+        try:
+            # Get the event from outlook
+            exchange_event = calendar.get_event(id=event.exchange_id)
+
+            # Cancel it!
+            exchange_event.cancel()
+        except ExchangeItemNotFoundException:
+            # Event is already gone, ignore it
+            pass
 
     def _sync_user(self, user):
         """
