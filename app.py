@@ -1,3 +1,4 @@
+import base64
 import json
 import os
 
@@ -14,6 +15,7 @@ from flask.ext.admin.contrib.sqla import ModelView
 from flask.ext.heroku import Heroku
 from flask.ext.sqlalchemy import SQLAlchemy
 from wtforms import ValidationError
+import simplecrypt
 import wtforms as wtf
 
 from service.auth import Auth
@@ -50,18 +52,46 @@ class Models(object):
     pass
 db.models = Models()
 
+def encrypt(dec):
+    enc = simplecrypt.encrypt(
+        app.config['SECRET_KEY'],
+        dec,
+    )
+    return base64.b64encode(enc)
+
+
+def decrypt(enc):
+    dec = simplecrypt.decrypt(
+        app.config['SECRET_KEY'],
+        base64.b64decode(enc),
+    )
+    return dec.decode('utf8')
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
     is_admin = db.Column(db.Boolean(), nullable=False, default=False)
     exchange_username = db.Column(db.String(100), nullable=False)
-    exchange_password = db.Column(db.String(100), nullable=False)
+    exchange_password_encrypted = db.Column(db.String(200), nullable=False)
     exchange_last_sync_time = db.Column(db.DateTime())
     exchange_last_sync_status = db.Column(db.Text())
     cascade_username = db.Column(db.String(100), nullable=False)
-    cascade_password = db.Column(db.String(100), nullable=False)
+    cascade_password_encrypted = db.Column(db.String(200), nullable=False)
     cascade_last_sync_time = db.Column(db.DateTime())
     cascade_last_sync_status = db.Column(db.Text())
+
+    def exchange_password_get(self):
+        return decrypt(self.exchange_password_encrypted)
+    def exchange_password_set(self, password):
+        self.exchange_password_encrypted = encrypt(password)
+    exchange_password = property(exchange_password_get, exchange_password_set)
+
+    def cascade_password_get(self):
+        return decrypt(self.cascade_password_encrypted)
+    def cascade_password_set(self, password):
+        self.cascade_password_encrypted = encrypt(password)
+    cascade_password = property(cascade_password_get, cascade_password_set)
+
 db.models.User = User
 
 class Event(db.Model):
@@ -85,6 +115,7 @@ class Event(db.Model):
     # These keep track of whether we need to push updates into exchange
     last_update = db.Column(db.DateTime())
     last_push = db.Column(db.DateTime())
+
 db.models.Event = Event
 
 

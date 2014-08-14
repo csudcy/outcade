@@ -5,9 +5,14 @@ A tool to read holidays from Cascade and write them to an Outlook calendar
 
 
 TODO:
-* Periodically run syncs (heroku-scheduler + flask-script?)
+ * Version database
+ * Periodically run syncs (heroku-scheduler + flask-script?)
+ * Move settings to config
+ * Allow non-admins to edit their own details on main page
+ * Show user upcoming holidays on main page
+ * Make user form error nicely on password errors
+
+DONE:
+ * Pull events from Cascade
+ * Push events to Exchange
  * Encrypt user passwords
- * Config
- * Show user their own details on outcade page
- * Show user upcoming holidays
- * Make user form error on password errors

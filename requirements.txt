@@ -11,3 +11,4 @@ pyexchange==0.4.1
 PyMemoize==1.0.1
 requests==2.3.0
 pyquery==1.2.8
+simple-crypt==3.0.2

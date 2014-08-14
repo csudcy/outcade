@@ -15,11 +15,12 @@
                 </button>
             </form>
             {%if request.args.error%}
+                <br/>
                 <div class="login_error frame">
                     Login failed!<br/>
                     Are you using your exchange login details?
                 </div>
             {%endif%}
-        </div>
+        </span>
     </div>
 {% endblock %}
