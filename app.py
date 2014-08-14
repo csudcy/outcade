@@ -166,12 +166,7 @@ class AuthenticateModelView(ModelView):
             return user.is_admin
         return False
 
-admin = Admin(app)
-class UserView(AuthenticateModelView):
-    column_exclude_list = (
-        'exchange_password',
-        'cascade_password',
-    )
+class UserAdminView(AuthenticateModelView):
     form_columns = (
         'name',
         'is_admin',
@@ -216,37 +211,67 @@ class UserView(AuthenticateModelView):
             raise ValidationError()
 
         return ret
-admin.add_view(UserView(User, db.session))
-admin.add_view(AuthenticateModelView(Event, db.session))
 
+class UserSingleView(AuthenticateModelView):
+    form_columns = (
+        'name',
+        'cascade_username',
+        'cascade_password_new',
+        'cascade_password_confirm',
+    )
+    form_extra_fields = {
+        'cascade_password_new': wtf.PasswordField('Cascade Password'),
+        'cascade_password_confirm': wtf.PasswordField('Cascade Password (Confirm)'),
+    }
+
+    def on_model_change(self, form, model, is_created):
+        # Verify the cascade password
+        set_cascade_password = check_password_fields(
+            form.cascade_password_new,
+            form.cascade_password_confirm,
+            required=is_created,
+        )
+        if set_cascade_password:
+            model.cascade_password = form.cascade_password_new.data
+
+        # Continue with the normal validation
+        ret = super(UserView, self).on_model_change(form, model, is_created)
+
+        # Check if we added any errors
+        if len(form.exchange_password_new.errors) > 0 or len(form.cascade_password_new.errors):
+            raise ValidationError()
+
+        return ret
+
+
+admin = Admin(app)
+admin.add_view(UserAdminView(User, db.session))
+admin.add_view(AuthenticateModelView(Event, db.session))
+# Used for creating a form later
+user_single_view = UserSingleView(User, db.session)
 
 ##################################################
 #                    Routes
 ##################################################
 
-@app.route('/', methods=['GET'])
+@app.route('/', methods=['GET', 'POST'])
 def splash():
+    error = False
+    if request.method == 'POST':
+        # Login with the request parameters
+        success = auth.login(
+            exchange,
+            request.form['username'],
+            request.form['password'],
+        )
+        error = not success
     if auth.get_current_user() is not None:
-        # User is already logged in, redirect to the good stuff
+        # User is logged in, redirect to the good stuff
         return redirect(url_for('outcade'))
-    return render_template('index.html')
-
-@app.route('/login/', methods=['POST'])
-def login():
-    # Get the request parameters
-
-    success = auth.login(
-        exchange,
-        request.form['username'],
-        request.form['password'],
+    return render_template(
+        'index.html',
+        error=error,
     )
-
-    # Test the login details
-    if success:
-        # Valid username & password, save everything to the session
-        return redirect(url_for('outcade'))
-    # Otherwise, invalid
-    return redirect(url_for('splash', error=True))
 
 @app.route('/logout/', methods=['GET', 'POST'])
 @auth.authorised
@@ -257,7 +282,18 @@ def logout():
 @app.route('/outcade/', methods=['GET', 'POST'])
 @auth.authorised
 def outcade():
-    return render_template('outcade.html')
+    form = user_single_view.edit_form(request.user)
+    import pdb
+    #pdb.set_trace()
+    if request.method == 'POST':
+        # Update the form with posted values
+        form.process(request.form)
+
+        if form.validate():
+            # Save the form
+            form.save()
+
+    return render_template('outcade.html', form=form)
 
 @app.route('/sync_cascade/', methods=['GET', 'POST'])
 @auth.authorised

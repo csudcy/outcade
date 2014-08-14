@@ -3,7 +3,7 @@
 {% block body %}
     <div class="login_outer">
         <span class="login frame">
-            <form action="{{url_for('login')}}" method="POST">
+            <form action="." method="POST">
                 <label for="username">Username:</label>
                 <input type="text" name="username" id="username"/>
                 <br/>
@@ -14,11 +14,13 @@
                     Login
                 </button>
             </form>
+            <br/>
+            To login, enter your Exchange details above.
             {%if request.args.error%}
                 <br/>
                 <div class="login_error frame">
                     Login failed!<br/>
-                    Are you using your exchange login details?
+                    Are you using your Exchange login details?
                 </div>
             {%endif%}
         </span>
