@@ -13,6 +13,8 @@ from flask import url_for
 from flask.ext.admin import Admin
 from flask.ext.admin.contrib.sqla import ModelView
 from flask.ext.heroku import Heroku
+from flask.ext.migrate import Migrate, MigrateCommand
+from flask.ext.script import Manager
 from flask.ext.sqlalchemy import SQLAlchemy
 from wtforms import ValidationError
 import simplecrypt
@@ -47,6 +49,7 @@ heroku = Heroku(app)
 ##################################################
 
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 class Models(object):
     pass
@@ -273,10 +276,21 @@ def sync_exchange():
 #                    Main
 ##################################################
 
-if __name__ == '__main__':
-    # Ensure all our tables are created
-    db.create_all()
+manager = Manager(app)
+manager.add_command('db', MigrateCommand)
+
+@manager.command
+def production():
+    """
+    Run the server in production mode
+    """
+    # Turn off debug on live...
+    app.debug = False
 
     # Bind to PORT if defined, otherwise default to 5000.
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
+
+
+if __name__ == '__main__':
+    manager.run()

@@ -12,3 +12,5 @@ PyMemoize==1.0.1
 requests==2.3.0
 pyquery==1.2.8
 simple-crypt==3.0.2
+Flask-Migrate==1.2.0
+Flask-Script==2.0.5
