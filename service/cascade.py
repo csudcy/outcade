@@ -237,7 +237,6 @@ class Cascade(object):
         now = datetime.datetime.now()
         year = now.year
         month = now.month
-        month = 1
 
         # Sync the next 2 months
         results = {}

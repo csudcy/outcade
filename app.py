@@ -1,4 +1,5 @@
 import base64
+import datetime
 import json
 import logging
 import os
@@ -97,6 +98,12 @@ class User(db.Model):
     cascade_last_sync_time = db.Column(db.DateTime())
     cascade_last_sync_status = db.Column(db.Text())
 
+    def __unicode__(self):
+        return '{name} ({id})'.format(
+            name=self.name,
+            id=self.id,
+        )
+
     def exchange_password_get(self):
         return decrypt(self.exchange_password_encrypted)
     def exchange_password_set(self, password):
@@ -132,6 +139,13 @@ class Event(db.Model):
     # These keep track of whether we need to push updates into exchange
     last_update = db.Column(db.DateTime())
     last_push = db.Column(db.DateTime())
+
+    def __unicode__(self):
+        return '{date} : {start} - {end}'.format(
+            date=self.start.strftime('%d/%m/%Y'),
+            start=self.start.strftime('%I%p').lower().lstrip('0'),
+            end=self.end.strftime('%I%p').lower().lstrip('0'),
+        )
 
 db.models.Event = Event
 
@@ -264,9 +278,21 @@ class UserSingleView(AuthenticateModelView):
         return ret
 
 
+class EventView(AuthenticateModelView):
+    column_list = (
+        'user',
+        'start',
+        'end',
+        'updated',
+        'deleted',
+        'last_update',
+        'last_push',
+    )
+
+
 admin = Admin(app)
 admin.add_view(UserAdminView(User, db.session))
-admin.add_view(AuthenticateModelView(Event, db.session))
+admin.add_view(EventView(Event, db.session))
 # Used for creating a form later
 user_single_view = UserSingleView(User, db.session)
 
@@ -313,10 +339,24 @@ def outcade():
             # Update the model
             updated = user_single_view.update_model(form, request.user)
 
+    now = datetime.datetime.now()
+    events = db.session.query(
+        db.models.Event
+    ).filter(
+        db.models.Event.user == request.user,
+        db.models.Event.deleted == False,
+        db.models.Event.end >= now,
+    ).order_by(
+        db.models.Event.start,
+        db.models.Event.end,
+    )[:10]
+
     return render_template(
         'outcade.html',
         updated=updated,
         form=form,
+        events=events,
+        # Needed for flask-admin form render
         h=h,
     )
 
