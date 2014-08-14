@@ -40,11 +40,11 @@ body>article {
 .user_links {
     float: right;
     margin-right: 10px;
+    margin-top: 10px;
 }
 
-.admin_link {
-    float: right;
-    margin-right: 10px;
+.user_links a {
+    margin-right: 15px;
 }
 
 /**********************************\

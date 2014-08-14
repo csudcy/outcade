@@ -1,3 +1,4 @@
+import json
 import os
 
 from flask import abort
@@ -12,6 +13,7 @@ from flask.ext.admin import Admin
 from flask.ext.admin.contrib.sqla import ModelView
 from flask.ext.heroku import Heroku
 from flask.ext.sqlalchemy import SQLAlchemy
+from wtforms import ValidationError
 import wtforms as wtf
 
 from service.auth import Auth
@@ -169,7 +171,13 @@ class UserView(AuthenticateModelView):
             model.cascade_password = form.cascade_password_new.data
 
         # Continue with the normal validation
-        return super(UserView, self).on_model_change(form, model, is_created)
+        ret = super(UserView, self).on_model_change(form, model, is_created)
+
+        # Check if we added any errors
+        if len(form.exchange_password_new.errors) > 0 or len(form.cascade_password_new.errors):
+            raise ValidationError()
+
+        return ret
 admin.add_view(UserView(User, db.session))
 admin.add_view(AuthenticateModelView(Event, db.session))
 
@@ -213,6 +221,18 @@ def logout():
 def outcade():
     return render_template('outcade.html')
 
+@app.route('/sync_cascade/', methods=['GET', 'POST'])
+@auth.authorised
+def sync_cascade():
+    result = cascade.sync()
+    return json.dumps(result)
+
+@app.route('/sync_exchange/', methods=['GET', 'POST'])
+@auth.authorised
+def sync_exchange():
+    result = exchange.sync()
+    return json.dumps(result)
+
 
 ##################################################
 #                    Main
@@ -221,10 +241,6 @@ def outcade():
 if __name__ == '__main__':
     # Ensure all our tables are created
     db.create_all()
-
-    import pdb
-    #cascade.sync()
-    #pdb.set_trace()
 
     # Bind to PORT if defined, otherwise default to 5000.
     port = int(os.environ.get('PORT', 5000))

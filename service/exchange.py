@@ -55,3 +55,9 @@ class Exchange(object):
             # Request failed; hopefully that means incorrect login
             return False
         return True
+
+    def sync(self):
+        """
+        Sync events into Exchange
+        """
+        pass

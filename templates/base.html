@@ -12,12 +12,13 @@
             </span>
             <span class="user_links">
                 {%if request.user%}
-                    <a href="{{url_for('logout')}}">Logout</a>
                     {%if request.user.is_admin%}
-                        <span class="admin_link">
-                            Go to <a href="{{ url_for('admin.index') }}">Admin</a>
-                        </span>
+                        <a target="_blank" href="{{ url_for('sync_cascade') }}">Sync Cascade</a>
+                        <a target="_blank" href="{{ url_for('sync_exchange') }}">Sync Exchange</a>
+                        <a target="_blank" href="{{ url_for('admin.index') }}">Admin</a>
                     {%endif%}
+
+                    <a href="{{url_for('logout')}}">Logout</a>
                 {%else%}
                     Welcome!
                 {%endif%}

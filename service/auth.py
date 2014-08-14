@@ -76,7 +76,6 @@ class Auth(object):
         # Everything pass
         return user
 
-
     def authorised(self, func):
         @functools.wraps(func)
         def inner(*args, **kwargs):

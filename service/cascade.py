@@ -264,6 +264,8 @@ class Cascade(object):
         user.cascade_last_sync_time = datetime.datetime.now()
         self.db.session.commit()
 
+        return results
+
     def sync(self):
         """
         Sync all users events with cascade
@@ -271,8 +273,8 @@ class Cascade(object):
         users = self.db.session.query(
             self.db.models.User
         ).all()
+        results = {}
         for user in users:
-            print 'Syncing'
-            print user
-            self.sync_user(user)
-        print 'Done syncing!'
+            result = self.sync_user(user)
+            results[user.cascade_username] = result
+        return results
