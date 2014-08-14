@@ -37,11 +37,20 @@ if 'DATABASE_URL' not in os.environ:
 
 
 ##################################################
-#                    Setup
+#                    Logging
 ##################################################
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
+
+for disabled_logger in ('pyexchange', ):
+    dl = logging.getLogger(disabled_logger)
+    dl.propagate = False
+
+
+##################################################
+#                    Setup
+##################################################
 
 app = Flask(__name__)
 app.debug = True
@@ -370,6 +379,17 @@ def sync_exchange():
     result = exchange.sync()
     logger.info('Syncing exchange done!')
     logger.info(json.dumps(result, indent=4))
+
+@manager.command
+def sync():
+    """
+    Sync everything
+    """
+    logger.info('Syncing cascade...')
+    result = cascade.sync()
+    logger.info('Syncing exchange...')
+    result = exchange.sync()
+    logger.info('Syncing done!')
 
 
 if __name__ == '__main__':
