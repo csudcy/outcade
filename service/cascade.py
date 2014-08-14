@@ -35,7 +35,7 @@ class Cascade(object):
     @memo(max_age=60)
     def _get_session(self, user):
         """
-        Login to cascade & setup a cookie session
+        Login to Cascade & setup a cookie session
         """
         # Create a new session
         session = requests.Session()
@@ -134,6 +134,7 @@ class Cascade(object):
         """
         Update events in the database based on the given information
         NOTE: month is 1 based!
+        Return stats about what happened
         """
 
         now = datetime.datetime.now()
@@ -174,6 +175,7 @@ class Cascade(object):
                     user=user,
                     start=start_datetime,
                     end=end_datetime,
+                    updated=True,
                 )
                 self.db.session.add(event)
                 results['created'] += 1
@@ -200,6 +202,7 @@ class Cascade(object):
         )
         results['deleted'] = events_to_delete.count()
         events_to_delete.update({
+            'updated': True,
             'deleted': True,
         })
 
@@ -209,7 +212,7 @@ class Cascade(object):
 
     def _sync_user_period(self, user, year, month):
         """
-        Sync the given user with cascade for the given period
+        Sync the given user with Cascade for the given period
         NOTE: month is 1 based
         Return stats about what happened
         """
@@ -226,7 +229,7 @@ class Cascade(object):
 
     def _sync_user(self, user):
         """
-        Sync the given user with cascade
+        Sync the given user with Cascade
         Return stats about what happened
         """
         # Get the current year and month
@@ -246,29 +249,30 @@ class Cascade(object):
 
     def sync_user(self, user):
         """
-        Sync the given user with cascade
+        Sync the given user with Cascade
+        Return stats about what happened
         """
-        class FakeException(Exception):
-            pass
         try:
-            results = self._sync_user(user)
+            result = self._sync_user(user)
             # Save success message to the user
             user.cascade_last_sync_status = 'Success! {0}'.format(
-                json.dumps(results)
+                json.dumps(result)
             )
-        except FakeException, ex:
+        except Exception, ex:
             # Save the exception to the user
+            result = str(ex)
             user.cascade_last_sync_status = 'Error! {0}'.format(
                 str(ex)
             )
         user.cascade_last_sync_time = datetime.datetime.now()
         self.db.session.commit()
 
-        return results
+        return result
 
     def sync(self):
         """
-        Sync all users events with cascade
+        Sync all users events with Cascade
+        Return stats about what happened
         """
         users = self.db.session.query(
             self.db.models.User

@@ -76,6 +76,7 @@ class Event(db.Model):
     user = db.relationship('User', backref='events')
     start = db.Column(db.DateTime(), nullable=False)
     end = db.Column(db.DateTime(), nullable=False)
+    updated = db.Column(db.Boolean(), nullable=False, default=True)
     deleted = db.Column(db.Boolean(), nullable=False, default=False)
 
     # This is how we find the event in outlook
@@ -224,12 +225,16 @@ def outcade():
 @app.route('/sync_cascade/', methods=['GET', 'POST'])
 @auth.authorised
 def sync_cascade():
+    if not request.user.is_admin:
+        return abort(403)
     result = cascade.sync()
     return json.dumps(result)
 
 @app.route('/sync_exchange/', methods=['GET', 'POST'])
 @auth.authorised
 def sync_exchange():
+    if not request.user.is_admin:
+        return abort(403)
     result = exchange.sync()
     return json.dumps(result)
 
