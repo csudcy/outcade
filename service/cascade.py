@@ -56,7 +56,9 @@ class Cascade(object):
         )
 
         if login_response.status_code != 200:
-            raise Exception('Received non-200 from Cascade!')
+            raise Exception('Received non-200 from Cascade! Got {status_code}.'.format(
+                status_code=login_response.status_code,
+            ))
         if 'The username or password is incorrect.' in login_response.text:
             raise Exception('Incorrect username or password for Cascade!')
 

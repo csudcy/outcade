@@ -13,17 +13,19 @@
                 <a href="{{url_for('splash')}}">Outcade</a>
             </span>
             <span class="user_links">
-                {%if request.user%}
-                    {%if request.user.is_admin%}
+                {% if request.user %}
+                    Welcome {{ request.user.name }}!
+
+                    {% if request.user.is_admin %}
                         <a target="_blank" href="{{ url_for('sync_cascade') }}">Sync Cascade</a>
                         <a target="_blank" href="{{ url_for('sync_exchange') }}">Sync Exchange</a>
                         <a target="_blank" href="{{ url_for('admin.index') }}">Admin</a>
-                    {%endif%}
+                    {% endif %}
 
                     <a href="{{url_for('logout')}}">Logout</a>
-                {%else%}
+                {% else %}
                     Welcome!
-                {%endif%}
+                {% endif %}
             </span>
         </header>
         <article class="frame">

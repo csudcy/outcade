@@ -5,10 +5,8 @@ A tool to read holidays from Cascade and write them to an Outlook calendar
 
 
 TODO:
- * Allow non-admins to edit their own details on main page
  * Move settings to config
  * Show user upcoming holidays on main page
- * Make user form error nicely on password errors
  * Periodically run syncs (heroku-scheduler?)
  * Time how long tasks take
 
@@ -18,3 +16,5 @@ DONE:
  * Encrypt user passwords
  * Version database
  * Run tasks from cli
+ * Allow non-admins to edit their own details on main page
+ * Make user form error nicely on password errors

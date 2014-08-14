@@ -215,7 +215,7 @@ class UserAdminView(AuthenticateModelView):
             model.cascade_password = form.cascade_password_new.data
 
         # Continue with the normal validation
-        ret = super(UserView, self).on_model_change(form, model, is_created)
+        ret = super(UserAdminView, self).on_model_change(form, model, is_created)
 
         # Check if we added any errors
         if len(form.exchange_password_new.errors) > 0 or len(form.cascade_password_new.errors):
@@ -246,10 +246,10 @@ class UserSingleView(AuthenticateModelView):
             model.cascade_password = form.cascade_password_new.data
 
         # Continue with the normal validation
-        ret = super(UserView, self).on_model_change(form, model, is_created)
+        ret = super(UserSingleView, self).on_model_change(form, model, is_created)
 
         # Check if we added any errors
-        if len(form.exchange_password_new.errors) > 0 or len(form.cascade_password_new.errors):
+        if len(form.cascade_password_new.errors):
             raise ValidationError()
 
         return ret
@@ -294,16 +294,19 @@ def logout():
 @auth.authorised
 def outcade():
     form = user_single_view.edit_form(request.user)
+    updated = False
     if request.method == 'POST':
         # Update the form with posted values
         form.process(request.form)
 
+        # Validate the form
         if form.validate():
-            # Save the form
-            form.save()
+            # Update the model
+            updated = user_single_view.update_model(form, request.user)
 
     return render_template(
         'outcade.html',
+        updated=updated,
         form=form,
         h=h,
     )

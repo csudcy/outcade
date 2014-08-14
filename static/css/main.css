@@ -5,22 +5,22 @@ body>* {
     position: absolute;
     left: 0px;
     right: 0px;
-    margin: 5px;
 }
 
 body>header {
     top: 0px;
-    height: 50px;
 }
 
 body>article {
-    top: 50px;
+    top: 58px;
     bottom: 0px;
 }
 
 .frame {
     border: 1px solid black;
     border-radius: 5px;
+    margin: 5px;
+    padding: 5px;
 }
 
 /**********************************\
@@ -44,7 +44,7 @@ body>article {
 }
 
 .user_links a {
-    margin-right: 15px;
+    margin-left: 15px;
 }
 
 /**********************************\
@@ -62,7 +62,6 @@ body>article {
 }
 .login_error {
     background-color: lightcoral;
-    padding: 5px;
     margin-top: 10px;
 }
 
@@ -70,8 +69,24 @@ body>article {
             Main page
 \**********************************/
 
-.user_form {
+.updated_tip {
+    background: lightgreen;
+}
 
+.user_form .control-label {
+    display: inline-block;
+    width: 200px;
+    vertical-align: top;
+}
+.user_form .controls {
+    display: inline-block;
+}
+.user_form .input-errors {
+    padding: 3px;
+    margin: 2px;
+    border-radius: 5px;
+    background: lightcoral;
+    list-style-type: none;
 }
 
 .exchange_tip {
@@ -80,8 +95,6 @@ body>article {
     right: 0px;
     bottom: 0px;
     height: 30px;
-    margin: 10px;
-    padding: 5px;
     background-color: lightsteelblue;
     text-align: center;
     font-size: 24px;
