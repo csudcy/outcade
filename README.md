@@ -5,6 +5,9 @@ A tool to read holidays from Cascade and write them to an Exchange calendar
 
 
 TODO:
+ * Record User.*_last_successful_sync_datetime ?
+ * Show last sync status and age on main page
+ * Make a base sync service
  * Fix timezone
  * Move settings to config
  * Refactor app.py into several structured files/directories
