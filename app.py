@@ -25,6 +25,7 @@ import humanize
 import simplecrypt
 import wtforms as wtf
 
+from service import utils
 from service.auth import Auth
 from service.cascade import Cascade
 from service.exchange import Exchange
@@ -468,23 +469,21 @@ def outcade():
             # Update the model
             updated = user_single_view.update_model(form, request.user)
 
-    now = datetime.datetime.now()
-    events = db.session.query(
-        db.models.Event
-    ).filter(
-        db.models.Event.user == request.user,
-        db.models.Event.deleted == False,
-        db.models.Event.day >= now,
-    ).order_by(
-        db.models.Event.day,
-        db.models.Event.period,
-    )[:10]
+    # Get a calendar
+    now = datetime.date.today()
+    event_calendar = utils.generate_calendar(
+        db,
+        request.user,
+        now.year,
+        now.month,
+        6,
+    )
 
     return render_template(
         'outcade.html',
         updated=updated,
         form=form,
-        events=events,
+        event_calendar=event_calendar,
         # Needed for flask-admin form render
         h=h,
     )

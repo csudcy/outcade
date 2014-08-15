@@ -178,18 +178,16 @@ class Cascade(object):
         self.db.session.commit()
 
         # Set any events in the current period that we havent updated to be deleted
-        month_start = datetime.date(year=year, month=month, day=1)
-        # This is shitty but I can't find a way in Python to add on a month
-        for i in xrange(months):
-            year, month = utils.next_month(year, month)
-        month_end = datetime.date(year=year, month=month, day=1)
+        months_start = datetime.date(year=year, month=month, day=1)
+        year, month = utils.add_months(year, month, months)
+        months_end = datetime.date(year=year, month=month, day=1)
 
         events_to_delete = self.db.session.query(
             self.db.models.Event
         ).filter(
             self.db.models.Event.user == user,
-            self.db.models.Event.day >= month_start,
-            self.db.models.Event.day < month_end,
+            self.db.models.Event.day >= months_start,
+            self.db.models.Event.day < months_end,
             self.db.models.Event.deleted == False,
             self.db.models.Event.last_update < now,
         )

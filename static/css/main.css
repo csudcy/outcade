@@ -115,3 +115,26 @@ body>footer {
     background: lightcoral;
     list-style-type: none;
 }
+
+.user_calendar th {
+    min-width: 20px;
+}
+.user_calendar td {
+    border: 1px solid black;
+    text-align: center;
+}
+td.calendar_cell_blank {
+    border: none;
+}
+.calendar_cell_empty {
+    background: #ccc;
+}
+.calendar_cell_BANK {
+    background: #a4a;
+}
+.calendar_cell_REQUESTED {
+    background: #e80;
+}
+.calendar_cell_APPROVED {
+    background: #2a2;
+}

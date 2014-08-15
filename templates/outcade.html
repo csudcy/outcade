@@ -20,17 +20,37 @@
         </form>
     </span>
     <hr/>
-    <span class="user_holidays">
+    <span class="user_calendar">
         <h1>
             Upcoming holidays
         </h1>
-        {% for event in events %}
-            {{ event }}
-            <br/>
-        {% else%}
-            <h3>
-                No holidays found :(
-            </h3>
-        {% endfor %}
+        <table>
+            <thead>
+                <tr>
+                    <th class="calendar_cell_blank"></th>
+                    {% for x in range(6) %}
+                        <th>M</th>
+                        <th>T</th>
+                        <th>W</th>
+                        <th>T</th>
+                        <th>F</th>
+                        <th>S</th>
+                        <th>S</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for month in event_calendar %}
+                    <tr>
+                        <th>{{ month.header }}</th>
+                        {% for cell in month.cells %}
+                            <td class="calendar_cell_{{ cell.klass }}" title="{{ cell.caption }}">
+                                {{ cell.text }}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </span>
 {% endblock %}

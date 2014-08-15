@@ -11,7 +11,6 @@ TODO:
  * Deal with other scenarios
   * What happens when there's a !
   * What happens if there's a combination on the same day?
- * Calendar view on main page
  * Email sync fail to user
  * Email exceptions to me
  * Record User.*_last_successful_sync_datetime ?
@@ -41,3 +40,4 @@ DONE:
  * Sync more months
  * Am vs pm
  * Holiday vs bank holiday
+ * Calendar view on main page
