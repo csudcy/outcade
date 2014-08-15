@@ -61,17 +61,17 @@ body>footer {
     height: 20px;
     border-radius: 100px;
 }
-
 .sync_status_good {
     background: #0a0;
 }
-
 .sync_status_ok {
     background: #f80;
 }
-
 .sync_status_bad {
     background: #d00;
+}
+.sync_status_disabled {
+    background: #ccc;
 }
 
 /**********************************\

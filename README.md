@@ -5,7 +5,6 @@ A tool to read holidays from Cascade and write them to an Exchange calendar
 
 
 TODO:
- * User sync enable disable
  * Clear all events from Outlook
  * Holiday vs bank holiday
  * Am vs pm
@@ -42,3 +41,4 @@ DONE:
  * Show last sync status and age on main page
  * Move TIP bar to the bottom & always show
  * Randomise TIPs
+ * User sync enable/disable

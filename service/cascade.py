@@ -262,6 +262,8 @@ class Cascade(object):
         """
         users = self.db.session.query(
             self.db.models.User
+        ).filter(
+            self.db.models.User.sync_enabled == True
         ).all()
         results = {}
         for user in users:

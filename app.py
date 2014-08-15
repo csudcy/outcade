@@ -89,6 +89,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
     is_admin = db.Column(db.Boolean(), nullable=False, default=False)
+    sync_enabled = db.Column(db.Boolean(), nullable=False, default=True)
     exchange_username = db.Column(db.String(100), nullable=False)
     exchange_password_encrypted = db.Column(db.String(200), nullable=False)
     exchange_last_sync_time = db.Column(db.DateTime())
@@ -148,6 +149,10 @@ class User(db.Model):
 
     @property
     def sync_status_summary(self):
+        if not self.sync_enabled:
+            # This user is not enabled for sync
+            return 'disabled'
+
         if self.cascade_last_sync_error or self.exchange_last_sync_error:
             # At least one of that syncs errored
             # That's bad, mmmkay?
@@ -191,10 +196,16 @@ class User(db.Model):
                 exchange_status += ' (Errored!)'
 
         # Format it nicely
-        return 'Cascade: {cascade_status}\nExchange: {exchange_status}'.format(
+        output = 'Cascade: {cascade_status}\nExchange: {exchange_status}'.format(
             cascade_status=cascade_status,
             exchange_status=exchange_status,
         )
+
+        # Check if this user should be syncing
+        if not self.sync_enabled:
+            output += '\nSync is disabled!'
+
+        return output
 
 
 db.models.User = User
@@ -275,6 +286,7 @@ class UserAdminView(AuthenticateModelView):
     column_list = (
         'name',
         'is_admin',
+        'sync_enabled',
         'exchange_username',
         'exchange_last_sync_time',
         'exchange_last_sync_status',
@@ -330,6 +342,7 @@ class UserAdminView(AuthenticateModelView):
 class UserSingleView(AuthenticateModelView):
     form_columns = (
         'name',
+        'sync_enabled',
         'cascade_username',
         'cascade_password_new',
         'cascade_password_confirm',
