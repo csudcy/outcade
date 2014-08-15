@@ -91,14 +91,13 @@ class Cascade(object):
             if current_date is None:
                 continue
 
-            # Check if this cell is a holiday
-            if cell.attrib.get('bgcolor') not in ('Purple', 'Yellow'):
-                continue
+            # Get all the details
+            caption = cell.attrib.get('onmouseover')
+            #if(cellstart == -1) doTooltip(event, '<div>Holiday&nbspAll Day </div>');
 
-            # Check if this is AM, PM or the whole day
-            period = cell.text_content()
-            if period not in ('AM', 'PM'):
-                period = 'AFD'
+            # Check this is a day we care about
+            if caption is None or 'Holiday' not in caption:
+                continue
 
             # Convert to a datetime
             day = datetime.datetime.strptime(
@@ -106,17 +105,33 @@ class Cascade(object):
                 '%d/%m/%Y',
             )
 
+            # Extract the period
+            if 'AM' in caption:
+                period = 'AM'
+            elif 'PM' in caption:
+                period = 'PM'
+            else:
+                period = 'AFD'
+
+            # Extract the event_type
+            if 'Bank Holiday' in caption:
+                event_type = 'BANK'
+            elif 'Request' in caption:
+                event_type = 'REQUESTED'
+            else:
+                event_type = 'APPROVED'
+
             # Add an event
             events.append({
                 'day': day,
                 'period': period,
-                'event_type': 'APPROVED',
+                'event_type': event_type,
             })
 
         return events
 
     @utils.record_runtime
-    def _update_events(self, year, month, user, events):
+    def _update_events(self, year, month, months, user, events):
         """
         Update events in the database based on the given information
         NOTE: month is 1 based!
@@ -164,7 +179,9 @@ class Cascade(object):
 
         # Set any events in the current period that we havent updated to be deleted
         month_start = datetime.date(year=year, month=month, day=1)
-        year, month = utils.next_month(year, month)
+        # This is shitty but I can't find a way in Python to add on a month
+        for i in xrange(months):
+            year, month = utils.next_month(year, month)
         month_end = datetime.date(year=year, month=month, day=1)
 
         events_to_delete = self.db.session.query(
@@ -172,7 +189,7 @@ class Cascade(object):
         ).filter(
             self.db.models.Event.user == user,
             self.db.models.Event.day >= month_start,
-            self.db.models.Event.day <= month_end,
+            self.db.models.Event.day < month_end,
             self.db.models.Event.deleted == False,
             self.db.models.Event.last_update < now,
         )
@@ -186,7 +203,7 @@ class Cascade(object):
 
         return results
 
-    def _sync_user(self, user):
+    def _sync_user(self, user, months=6):
         """
         Sync the given user with Cascade
         Return stats about what happened
@@ -202,12 +219,18 @@ class Cascade(object):
             cascade_session,
             year,
             month,
-            months=6,
+            months,
         )
         events = self._parse_calendar_html(calendar_html)
 
         # Save it to DB
-        result = self._update_events(year, month, user, events)
+        result = self._update_events(
+            year,
+            month,
+            months,
+            user,
+            events,
+        )
 
         return result
 
