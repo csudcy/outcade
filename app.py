@@ -261,14 +261,14 @@ class Event(db.Model):
     def start(self):
         return datetime.datetime.combine(
             self.day,
-            datetime.time(hour=period_info.start)
+            datetime.time(hour=self.period_info.start)
         )
 
     @property
     def end(self):
         return datetime.datetime.combine(
             self.day,
-            datetime.time(hour=period_info.end)
+            datetime.time(hour=self.period_info.end)
         )
 
 db.models.Event = Event

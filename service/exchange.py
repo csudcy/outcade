@@ -14,7 +14,7 @@ from service import utils
 
 HTML_BODY = u"""<html>
     <body>
-        <h1>Holiday</h1>
+        <h1>Holiday ({type})</h1>
         Improted from <a href="https://cascadehrponline.net/">Cascade</a> by <a href="http://outcade.herokuapp.com/">Outcade</a>
     </body>
 </html>"""
@@ -84,12 +84,16 @@ class Exchange(object):
         Create the given event from Outlook
         """
         exchange_event = calendar.new_event(
-            subject=u'Holiday',
+            subject=u'Holiday ({type})'.format(
+                type=event.event_type
+            ),
             attendees=[],
             location=u'Holiday',
             start=event.start,
             end=event.end,
-            html_body=HTML_BODY,
+            html_body=HTML_BODY.format(
+                type=event.event_type
+            ),
         )
 
         # Connect to Exchange and create the event

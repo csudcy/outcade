@@ -8,10 +8,8 @@ TODO:
  * Deal with updates (e.g. request being authorised)
  * Mark all events as deleted/updated
  * About page
- * Fix timezone
  * Deal with other scenarios
   * What happens when there's a !
-  * What happens when it's requested
   * What happens if there's a combination on the same day?
  * Calendar view on main page
  * Email sync fail to user
