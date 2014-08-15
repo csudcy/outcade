@@ -251,10 +251,6 @@ class Cascade(object):
             result = {
                 'error': str(ex),
             }
-        # Record status on the user
-        user.cascade_last_sync_status = json.dumps(result)
-        user.cascade_last_sync_time = datetime.datetime.now()
-        self.db.session.commit()
 
         return result
 
@@ -269,6 +265,14 @@ class Cascade(object):
         ).all()
         results = {}
         for user in users:
+            # Sync the user
             result = self.sync_user(user)
+
+            # Record status on the user
+            user.cascade_last_sync_status = json.dumps(result)
+            user.cascade_last_sync_time = datetime.datetime.now()
+            self.db.session.commit()
+
+            # Record in the full list of results too
             results[user.cascade_username] = result
         return results
