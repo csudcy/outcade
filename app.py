@@ -118,14 +118,20 @@ class User(db.Model):
 
     @property
     def cascade_last_sync_error(self):
+        if self.cascade_last_sync_status is None:
+            return None
         return ('error' in self.cascade_last_sync_status)
 
     @property
     def exchange_last_sync_error(self):
+        if self.exchange_last_sync_status is None:
+            return None
         return ('error' in self.exchange_last_sync_status)
 
     @property
     def cascade_last_sync_diff_hours(self):
+        if self.cascade_last_sync_time is None:
+            return None
         diff = datetime.datetime.now() - self.cascade_last_sync_time
         seconds = diff.total_seconds()
         hours = seconds / 3600
@@ -133,6 +139,8 @@ class User(db.Model):
 
     @property
     def exchange_last_sync_diff_hours(self):
+        if self.exchange_last_sync_time is None:
+            return None
         diff = datetime.datetime.now() - self.exchange_last_sync_time
         seconds = diff.total_seconds()
         hours = seconds / 3600
@@ -144,33 +152,45 @@ class User(db.Model):
             # At least one of that syncs errored
             # That's bad, mmmkay?
             return 'bad'
+
         # Work out how long ago we synced
-        max_last_sync_diff = max(
+        sync_diff_hours = [
             self.cascade_last_sync_diff_hours,
             self.exchange_last_sync_diff_hours,
-        )
-        if max_last_sync_diff > 24:
-            # If it's been more than a day, there could be a problem
+        ]
+
+        # Check the oldest sync
+        if None in sync_diff_hours or max(*sync_diff_hours) > 24:
+            # If it's been more than a day or we've never synced
+            # That's not great...
             return 'ok'
+
         # Otherwise, we're good
         return 'good'
 
     @property
     def sync_status_text(self):
         # Get the cascade status
-        cascade_status = 'Synced {diff_hours:.0f} hour(s) ago'.format(
-            diff_hours=self.cascade_last_sync_diff_hours,
-        )
-        if self.cascade_last_sync_error:
-            cascade_status += ' (Errored!)'
+        if self.cascade_last_sync_diff_hours is None:
+            cascade_status = 'Never synced'
+        else:
+            cascade_status = 'Synced {diff_hours:.0f} hour(s) ago'.format(
+                diff_hours=self.cascade_last_sync_diff_hours,
+            )
+            if self.cascade_last_sync_error:
+                cascade_status += ' (Errored!)'
 
         # Get the exchange status
-        exchange_status = 'Synced {diff_hours:.0f} hour(s) ago'.format(
-            diff_hours=self.exchange_last_sync_diff_hours,
-        )
-        if self.exchange_last_sync_error:
-            exchange_status += ' (Errored!)'
+        if self.exchange_last_sync_diff_hours is None:
+            exchange_status = 'Never synced'
+        else:
+            exchange_status = 'Synced {diff_hours:.0f} hour(s) ago'.format(
+                diff_hours=self.exchange_last_sync_diff_hours,
+            )
+            if self.exchange_last_sync_error:
+                exchange_status += ' (Errored!)'
 
+        # Format it nicely
         return 'Cascade: {cascade_status}\nExchange: {exchange_status}'.format(
             cascade_status=cascade_status,
             exchange_status=exchange_status,

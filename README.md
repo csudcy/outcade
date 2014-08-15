@@ -5,6 +5,8 @@ A tool to read holidays from Cascade and write them to an Exchange calendar
 
 
 TODO:
+ * User sync enable disable
+ * Clear all events from Outlook
  * Holiday vs bank holiday
  * Am vs pm
  * Sync more months
