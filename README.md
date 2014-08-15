@@ -5,8 +5,10 @@ A tool to read holidays from Cascade and write them to an Outlook calendar
 
 
 TODO:
- * Time how long tasks take
+ * Fix timezone
  * Move settings to config
+ * Disconnect Outcade users from Outlook users?
+  * Users can enter their own exchange & cascade details?
 
 
 DONE:
@@ -19,3 +21,4 @@ DONE:
  * Make user form error nicely on password errors
  * Periodically run syncs (heroku-scheduler?)
  * Show user upcoming holidays on main page
+ * Time how long tasks take

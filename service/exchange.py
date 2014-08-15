@@ -9,8 +9,8 @@ from pyexchange import ExchangeNTLMAuthConnection
 from pyexchange.exceptions import FailedExchangeException, ExchangeItemNotFoundException
 from sqlalchemy import or_
 
-store = {}
-memo = Memoizer(store)
+from service import utils
+
 
 HTML_BODY = u"""<html>
     <body>
@@ -36,7 +36,7 @@ class Exchange(object):
         self.asmx_url = asmx_url
         self.domain = domain
 
-    @memo(max_age=300)
+    @utils.memo(max_age=300)
     def _get_service(self, username, password):
         """
         Get the calendar for the given connection
@@ -168,6 +168,7 @@ class Exchange(object):
 
         return result
 
+    @utils.record_runtime
     def sync_user(self, user):
         """
         Sync the given user with Exchange
@@ -181,7 +182,9 @@ class Exchange(object):
             )
         except Exception, ex:
             # Save the exception to the user
-            result = str(ex)
+            result = {
+                'error': str(ex),
+            }
             user.exchange_last_sync_status = 'Error! {0}'.format(
                 str(ex)
             )
@@ -190,6 +193,7 @@ class Exchange(object):
 
         return result
 
+    @utils.record_runtime
     def sync(self):
         """
         Sync all users events with Exchange

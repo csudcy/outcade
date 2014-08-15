@@ -6,22 +6,11 @@ import logging
 import time
 
 import requests
-from memoize import Memoizer
 from pyquery import PyQuery as pq
 from sqlalchemy.orm.exc import NoResultFound
 
-store = {}
-memo = Memoizer(store)
+from service import utils
 
-
-def next_month(year, month):
-    """
-    Return the year and month of the next month
-    NOTE: month is 1 based
-    """
-    if month == 12:
-        return year+1, 1
-    return year, month+1
 
 class Cascade(object):
     base_url = 'https://www.cascadehrponline.net/'
@@ -31,7 +20,7 @@ class Cascade(object):
         self.db = db
         self.company = company
 
-    @memo(max_age=60)
+    @utils.memo(max_age=60)
     def _get_session(self, user):
         """
         Login to Cascade & setup a cookie session
@@ -131,6 +120,7 @@ class Cascade(object):
 
         return events
 
+    @utils.record_runtime
     def _update_events(self, year, month, user, events):
         """
         Update events in the database based on the given information
@@ -189,7 +179,7 @@ class Cascade(object):
 
         # Set any events in the current period that we havent updated to be deleted
         month_start = datetime.datetime(year=year, month=month, day=1)
-        year, month = next_month(year, month)
+        year, month = utils.next_month(year, month)
         month_end = datetime.datetime(year=year, month=month, day=1) - datetime.timedelta(seconds=1)
 
         events_to_delete = self.db.session.query(
@@ -243,10 +233,11 @@ class Cascade(object):
         for i in xrange(2):
             key = '%s-%s' % (year, month)
             results[key] = self._sync_user_period(user, year, month)
-            year, month = next_month(year, month)
+            year, month = utils.next_month(year, month)
 
         return results
 
+    @utils.record_runtime
     def sync_user(self, user):
         """
         Sync the given user with Cascade
@@ -260,7 +251,9 @@ class Cascade(object):
             )
         except Exception, ex:
             # Save the exception to the user
-            result = str(ex)
+            result = {
+                'error': str(ex),
+            }
             user.cascade_last_sync_status = 'Error! {0}'.format(
                 str(ex)
             )
@@ -269,6 +262,7 @@ class Cascade(object):
 
         return result
 
+    @utils.record_runtime
     def sync(self):
         """
         Sync all users events with Cascade
