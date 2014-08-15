@@ -20,6 +20,7 @@ from flask.ext.migrate import Migrate, MigrateCommand
 from flask.ext.script import Manager
 from flask.ext.sqlalchemy import SQLAlchemy
 from wtforms import ValidationError
+import humanize
 import simplecrypt
 import wtforms as wtf
 
@@ -130,22 +131,16 @@ class User(db.Model):
         return ('error' in self.exchange_last_sync_status)
 
     @property
-    def cascade_last_sync_diff_hours(self):
+    def cascade_last_sync_diff(self):
         if self.cascade_last_sync_time is None:
             return None
-        diff = datetime.datetime.now() - self.cascade_last_sync_time
-        seconds = diff.total_seconds()
-        hours = seconds / 3600
-        return math.floor(hours)
+        return datetime.datetime.now() - self.cascade_last_sync_time
 
     @property
-    def exchange_last_sync_diff_hours(self):
+    def exchange_last_sync_diff(self):
         if self.exchange_last_sync_time is None:
             return None
-        diff = datetime.datetime.now() - self.exchange_last_sync_time
-        seconds = diff.total_seconds()
-        hours = seconds / 3600
-        return math.floor(hours)
+        return datetime.datetime.now() - self.exchange_last_sync_time
 
     @property
     def sync_status_summary(self):
@@ -159,13 +154,13 @@ class User(db.Model):
             return 'bad'
 
         # Work out how long ago we synced
-        sync_diff_hours = [
-            self.cascade_last_sync_diff_hours,
-            self.exchange_last_sync_diff_hours,
+        sync_diffs = [
+            self.cascade_last_sync_diff,
+            self.exchange_last_sync_diff,
         ]
 
         # Check the oldest sync
-        if None in sync_diff_hours or max(*sync_diff_hours) > 24:
+        if None in sync_diffs or max(*sync_diffs) > datetime.timedelta(hours=24):
             # If it's been more than a day or we've never synced
             # That's not great...
             return 'ok'
@@ -176,21 +171,21 @@ class User(db.Model):
     @property
     def sync_status_text(self):
         # Get the cascade status
-        if self.cascade_last_sync_diff_hours is None:
+        if self.cascade_last_sync_diff is None:
             cascade_status = 'Never synced'
         else:
-            cascade_status = 'Synced {diff_hours:.0f} hour(s) ago'.format(
-                diff_hours=self.cascade_last_sync_diff_hours,
+            cascade_status = 'Synced {diff}'.format(
+                diff=humanize.naturaltime(self.cascade_last_sync_diff),
             )
             if self.cascade_last_sync_error:
                 cascade_status += ' (Errored!)'
 
         # Get the exchange status
-        if self.exchange_last_sync_diff_hours is None:
+        if self.exchange_last_sync_diff is None:
             exchange_status = 'Never synced'
         else:
-            exchange_status = 'Synced {diff_hours:.0f} hour(s) ago'.format(
-                diff_hours=self.exchange_last_sync_diff_hours,
+            exchange_status = 'Synced {diff}'.format(
+                diff=humanize.naturaltime(self.exchange_last_sync_diff),
             )
             if self.exchange_last_sync_error:
                 exchange_status += ' (Errored!)'
