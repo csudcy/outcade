@@ -175,19 +175,15 @@ class Exchange(object):
         Return stats about what happened
         """
         try:
+            # Try to sync the user
             result = self._sync_user(user)
-            # Save success message to the user
-            user.exchange_last_sync_status = 'Success! {0}'.format(
-                json.dumps(result)
-            )
         except Exception, ex:
             # Save the exception to the user
             result = {
                 'error': str(ex),
             }
-            user.exchange_last_sync_status = 'Error! {0}'.format(
-                str(ex)
-            )
+        # Record status on the user
+        user.exchange_last_sync_status = json.dumps(result)
         user.exchange_last_sync_time = datetime.datetime.now()
         self.db.session.commit()
 
