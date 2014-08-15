@@ -14,15 +14,29 @@
             </span>
             <span class="user_links">
                 {% if request.user %}
-                    Welcome {{ request.user.name }}!
+                    <span>
+                        Welcome {{ request.user.name }}!
+                    </span>
+
+                    <span class="sync_status sync_status_{{ request.user.sync_status_summary }}" title="{{ request.user.sync_status_text }}">
+                        &nbsp;
+                    </span>
 
                     {% if request.user.is_admin %}
-                        <a target="_blank" href="{{ url_for('sync_cascade') }}">Sync Cascade</a>
-                        <a target="_blank" href="{{ url_for('sync_exchange') }}">Sync Exchange</a>
-                        <a target="_blank" href="{{ url_for('admin.index') }}">Admin</a>
+                        <span>
+                            <a target="_blank" href="{{ url_for('sync_cascade') }}">Sync Cascade</a>
+                        </span>
+                        <span>
+                            <a target="_blank" href="{{ url_for('sync_exchange') }}">Sync Exchange</a>
+                        </span>
+                        <span>
+                            <a target="_blank" href="{{ url_for('admin.index') }}">Admin</a>
+                        </span>
                     {% endif %}
 
-                    <a href="{{url_for('logout')}}">Logout</a>
+                    <span>
+                        <a href="{{url_for('logout')}}">Logout</a>
+                    </span>
                 {% else %}
                     Welcome!
                 {% endif %}

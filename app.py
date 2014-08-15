@@ -2,6 +2,7 @@ import base64
 import datetime
 import json
 import logging
+import math
 import os
 
 from flask import abort
@@ -114,6 +115,67 @@ class User(db.Model):
     def cascade_password_set(self, password):
         self.cascade_password_encrypted = encrypt(password)
     cascade_password = property(cascade_password_get, cascade_password_set)
+
+    @property
+    def cascade_last_sync_error(self):
+        return ('error' in self.cascade_last_sync_status)
+
+    @property
+    def exchange_last_sync_error(self):
+        return ('error' in self.exchange_last_sync_status)
+
+    @property
+    def cascade_last_sync_diff_hours(self):
+        diff = datetime.datetime.now() - self.cascade_last_sync_time
+        seconds = diff.total_seconds()
+        hours = seconds / 3600
+        return math.floor(hours)
+
+    @property
+    def exchange_last_sync_diff_hours(self):
+        diff = datetime.datetime.now() - self.exchange_last_sync_time
+        seconds = diff.total_seconds()
+        hours = seconds / 3600
+        return math.floor(hours)
+
+    @property
+    def sync_status_summary(self):
+        if self.cascade_last_sync_error or self.exchange_last_sync_error:
+            # At least one of that syncs errored
+            # That's bad, mmmkay?
+            return 'bad'
+        # Work out how long ago we synced
+        max_last_sync_diff = max(
+            self.cascade_last_sync_diff_hours,
+            self.exchange_last_sync_diff_hours,
+        )
+        if max_last_sync_diff.days > 24:
+            # If it's been more than a day, there could be a problem
+            return 'ok'
+        # Otherwise, we're good
+        return 'good'
+
+    @property
+    def sync_status_text(self):
+        # Get the cascade status
+        cascade_status = 'Synced {diff_hours:.0f} hour(s) ago'.format(
+            diff_hours=self.cascade_last_sync_diff_hours,
+        )
+        if self.cascade_last_sync_error:
+            cascade_status += ' (Errored!)'
+
+        # Get the exchange status
+        exchange_status = 'Synced {diff_hours:.0f} hour(s) ago'.format(
+            diff_hours=self.exchange_last_sync_diff_hours,
+        )
+        if self.exchange_last_sync_error:
+            exchange_status += ' (Errored!)'
+
+        return 'Cascade: {cascade_status}\nExchange: {exchange_status}'.format(
+            cascade_status=cascade_status,
+            exchange_status=exchange_status,
+        )
+
 
 db.models.User = User
 

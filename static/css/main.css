@@ -39,12 +39,30 @@ body>article {
 
 .user_links {
     float: right;
-    margin-right: 10px;
     margin-top: 10px;
 }
 
-.user_links a {
-    margin-left: 15px;
+.user_links span {
+    margin-right: 15px;
+}
+
+.sync_status {
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    border-radius: 100px;
+}
+
+.sync_status_good {
+    background: #0a0;
+}
+
+.sync_status_ok {
+    background: #f80;
+}
+
+.sync_status_bad {
+    background: #d00;
 }
 
 /**********************************\
