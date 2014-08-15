@@ -3,7 +3,15 @@ Jinja2==2.6
 Werkzeug==0.8.3
 wsgiref==0.1.2
 
-flask-heroku==0.1.9
-flask-sqlalchemy==1.0
-psycopg2==2.5.3
 Flask-Admin==1.0.8
+flask-heroku==0.1.9
+Flask-Migrate==1.2.0
+Flask-Script==2.0.5
+flask-sqlalchemy==1.0
+humanize==0.5
+psycopg2==2.5.3
+pyexchange==0.4.1
+PyMemoize==1.0.1
+pyquery==1.2.8
+requests==2.3.0
+simple-crypt==3.0.2

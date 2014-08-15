@@ -1,15 +1,59 @@
 <!doctype html>
 <html>
-	<head>
-		<title>Outcade</title>
-	</head>
-	<body>
-		<h1>Outcade</h1>
-		<hr/>
-		<div class="content">
-			{% block body %}{% endblock %}
-		</div>
-		<hr/>
-		Go to <a href="{{ url_for('admin.index') }}">Admin</a>
-	</body>
+    <head>
+        {% block head %}
+            <title>Outcade</title>
+            <link rel="stylesheet" href="{{url_for('static', filename='css/main.css')}}" type="text/css" />
+            <link rel="shortcut icon" href="{{url_for('static', filename='img/favicon.png')}}"/>
+        {% endblock %}
+    </head>
+    <body>
+        <header class="frame">
+            <span class="title">
+                <a href="{{url_for('splash')}}">Outcade</a>
+            </span>
+            <span class="user_links">
+                {% if request.user %}
+                    <span>
+                        Welcome {{ request.user.name }}!
+                    </span>
+
+                    <span class="sync_status sync_status_{{ request.user.sync_status_summary }}" title="{{ request.user.sync_status_text }}">
+                        &nbsp;
+                    </span>
+
+                    {% if request.user.is_admin %}
+                        <span>
+                            <a target="_blank" href="{{ url_for('sync_cascade') }}">Sync Cascade</a>
+                        </span>
+                        <span>
+                            <a target="_blank" href="{{ url_for('sync_exchange') }}">Sync Exchange</a>
+                        </span>
+                        <span>
+                            <a target="_blank" href="{{ url_for('admin.index') }}">Admin</a>
+                        </span>
+                    {% endif %}
+
+                    <span>
+                        <a href="{{url_for('logout')}}">Logout</a>
+                    </span>
+                {% else %}
+                    Welcome!
+                {% endif %}
+            </span>
+        </header>
+        <article class="frame">
+            {% block body %}
+                You probably want to put something here...
+            {% endblock %}
+        </article>
+        <footer class="frame">
+            {% block footer %}
+                {{ (
+                    'TIP: To login, use your Outlook username & password',
+                    'TIP: To change your Exchange password just logout then login again with the new password',
+                )|random }}
+            {% endblock %}
+        </footer>
+    </body>
 </html>

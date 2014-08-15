@@ -1,0 +1,140 @@
+/**********************************\
+            Main Layout
+\**********************************/
+body>* {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+}
+
+body>header {
+    top: 0px;
+}
+
+body>article {
+    top: 58px;
+    bottom: 41px;
+}
+
+body>footer {
+    bottom: 0px;
+    height: 30px;
+    background-color: lightsteelblue;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.frame {
+    border: 1px solid black;
+    border-radius: 5px;
+    margin: 5px;
+    padding: 5px;
+}
+
+/**********************************\
+            Base sections
+\**********************************/
+
+.title {
+    font-size: 40px;
+    font-weight: bold;
+    margin-left: 10px;
+}
+.title a {
+    text-decoration: none;
+    color: initial;
+}
+
+.user_links {
+    float: right;
+    margin-top: 10px;
+}
+
+.user_links span {
+    margin-right: 15px;
+}
+
+.sync_status {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 100px;
+}
+.sync_status_good {
+    background: #0a0;
+}
+.sync_status_ok {
+    background: #f80;
+}
+.sync_status_bad {
+    background: #d00;
+}
+.sync_status_disabled {
+    background: #ccc;
+}
+
+/**********************************\
+            Login page
+\**********************************/
+
+.login_outer {
+    text-align: center;
+}
+.login {
+    display: inline-block;
+    margin-top: 200px;
+    padding: 20px;
+    text-align: center;
+}
+.login_error {
+    background-color: lightcoral;
+    margin-top: 10px;
+}
+
+/**********************************\
+            Main page
+\**********************************/
+
+.updated_tip {
+    background: lightgreen;
+}
+
+.user_form .control-label {
+    display: inline-block;
+    width: 200px;
+    vertical-align: top;
+}
+.user_form .controls {
+    display: inline-block;
+}
+.user_form .input-errors {
+    padding: 3px;
+    margin: 2px;
+    border-radius: 5px;
+    background: lightcoral;
+    list-style-type: none;
+}
+
+.user_calendar th {
+    min-width: 20px;
+}
+.user_calendar td {
+    border: 1px solid black;
+    text-align: center;
+}
+td.calendar_cell_blank {
+    border: none;
+}
+.calendar_cell_empty {
+    background: #ccc;
+}
+.calendar_cell_BANK {
+    background: #a4a;
+}
+.calendar_cell_REQUESTED {
+    background: #e80;
+}
+.calendar_cell_APPROVED {
+    background: #2a2;
+}

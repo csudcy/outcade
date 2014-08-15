@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% import 'admin/lib.html' as lib with context %}
+
+
+{% block body %}
+    {% if updated == True %}
+        <div class="updated_tip frame">
+            Your details have been updated!
+        </div>
+    {% endif %}
+    <span class="user_form">
+        <h1>
+            Your Details
+        </h1>
+        <form action="." method="POST" enctype="multipart/form-data">
+            {{ lib.render_form_fields(form) }}
+            <button type="submit">
+                Update My Details
+            </button>
+        </form>
+    </span>
+    <hr/>
+    <span class="user_calendar">
+        <h1>
+            Upcoming holidays
+        </h1>
+        <table>
+            <thead>
+                <tr>
+                    <th class="calendar_cell_blank"></th>
+                    {% for x in range(6) %}
+                        <th>M</th>
+                        <th>T</th>
+                        <th>W</th>
+                        <th>T</th>
+                        <th>F</th>
+                        <th>S</th>
+                        <th>S</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for month in event_calendar %}
+                    <tr>
+                        <th>{{ month.header }}</th>
+                        {% for cell in month.cells %}
+                            <td class="calendar_cell_{{ cell.klass }}" title="{{ cell.caption }}">
+                                {{ cell.text }}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </span>
+{% endblock %}
