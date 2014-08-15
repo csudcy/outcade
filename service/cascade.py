@@ -96,21 +96,20 @@ class Cascade(object):
                 continue
 
             # Check if this is AM, PM or the whole day
-            start_hour = 8
-            end_hour = 20
-            cell_text = cell.text_content()
-            if cell_text == 'AM':
-                # Morning only
-                end_hour = 14
-            elif cell_text == 'PM':
-                # Afternoon only
-                start_hour = 14
+            period = cell.text_content()
+            if period not in ('AM', 'PM'):
+                period = 'AFD'
+
+            # Convert to a datetime
+            day = datetime.datetime.strptime(
+                current_date,
+                '%d/%m/%Y',
+            )
 
             # Add an event
             events.append({
-                'date': current_date,
-                'start_hour': start_hour,
-                'end_hour': end_hour,
+                'day': day,
+                'period': period,
             })
 
         return events
@@ -131,18 +130,6 @@ class Cascade(object):
         }
 
         for event_info in events:
-            # Get proper datetimes
-            current_datetime = datetime.datetime.strptime(
-                event_info['date'],
-                '%d/%m/%Y',
-            )
-            start_datetime = current_datetime + datetime.timedelta(
-                hours=event_info['start_hour']
-            )
-            end_datetime = current_datetime + datetime.timedelta(
-                hours=event_info['end_hour']
-            )
-
             # Find or create this event
             try:
                 # Find an existing event
@@ -150,8 +137,8 @@ class Cascade(object):
                     self.db.models.Event
                 ).filter(
                     self.db.models.Event.user == user,
-                    self.db.models.Event.start == start_datetime,
-                    self.db.models.Event.end == end_datetime,
+                    self.db.models.Event.day == event_info['day'],
+                    self.db.models.Event.period == event_info['period'],
                     self.db.models.Event.deleted == False,
                 ).one()
                 results['updated'] += 1
@@ -159,8 +146,8 @@ class Cascade(object):
                 # Create a new event
                 event = self.db.models.Event(
                     user=user,
-                    start=start_datetime,
-                    end=end_datetime,
+                    day=event_info['day'],
+                    period=event_info['period'],
                     updated=True,
                 )
                 self.db.session.add(event)
@@ -173,16 +160,16 @@ class Cascade(object):
         self.db.session.commit()
 
         # Set any events in the current period that we havent updated to be deleted
-        month_start = datetime.datetime(year=year, month=month, day=1)
+        month_start = datetime.date(year=year, month=month, day=1)
         year, month = utils.next_month(year, month)
-        month_end = datetime.datetime(year=year, month=month, day=1) - datetime.timedelta(seconds=1)
+        month_end = datetime.date(year=year, month=month, day=1)
 
         events_to_delete = self.db.session.query(
             self.db.models.Event
         ).filter(
             self.db.models.Event.user == user,
-            self.db.models.Event.start >= month_start,
-            self.db.models.Event.start <= month_end,
+            self.db.models.Event.day >= month_start,
+            self.db.models.Event.day <= month_end,
             self.db.models.Event.deleted == False,
             self.db.models.Event.last_update < now,
         )

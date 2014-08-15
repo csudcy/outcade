@@ -206,6 +206,17 @@ class User(db.Model):
 db.models.User = User
 
 class Event(db.Model):
+    PERIOD_TIMES = {
+        'AM': (8, 14),
+        'PM': (14, 20),
+        'AFD': (8, 20),
+    }
+    PERIOD_NAMES = {
+        'AM': 'Morning',
+        'PM': 'Afternoon',
+        'AFD': 'All Day',
+    }
+
     id = db.Column(db.Integer, primary_key=True)
 
     # These identify an event
@@ -215,8 +226,8 @@ class Event(db.Model):
         nullable=False,
     )
     user = db.relationship('User', backref='events')
-    start = db.Column(db.DateTime(), nullable=False)
-    end = db.Column(db.DateTime(), nullable=False)
+    day = db.Column(db.Date(), nullable=False)
+    period = db.Column(db.String(10), nullable=False) #AM, PM, AFD
     updated = db.Column(db.Boolean(), nullable=False, default=True)
     deleted = db.Column(db.Boolean(), nullable=False, default=False)
 
@@ -228,10 +239,25 @@ class Event(db.Model):
     last_push = db.Column(db.DateTime())
 
     def __unicode__(self):
-        return '{date} : {start} - {end}'.format(
-            date=self.start.strftime('%d/%m/%Y'),
-            start=self.start.strftime('%I%p').lower().lstrip('0'),
-            end=self.end.strftime('%I%p').lower().lstrip('0'),
+        return '{date} : {period}'.format(
+            date=self.day.strftime('%d/%m/%Y'),
+            period=self.PERIOD_NAMES[self.period],
+        )
+
+    @property
+    def start(self):
+        start_hour, end_hour = self.PERIOD_TIMES[self.period]
+        return datetime.datetime.combine(
+            self.day,
+            datetime.time(hour=start_hour)
+        )
+
+    @property
+    def end(self):
+        start_hour, end_hour = self.PERIOD_TIMES[self.period]
+        return datetime.datetime.combine(
+            self.day,
+            datetime.time(hour=end_hour)
         )
 
 db.models.Event = Event
@@ -435,10 +461,10 @@ def outcade():
     ).filter(
         db.models.Event.user == request.user,
         db.models.Event.deleted == False,
-        db.models.Event.end >= now,
+        db.models.Event.day >= now,
     ).order_by(
-        db.models.Event.start,
-        db.models.Event.end,
+        db.models.Event.day,
+        db.models.Event.period,
     )[:10]
 
     return render_template(
