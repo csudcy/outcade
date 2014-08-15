@@ -49,7 +49,10 @@
         </article>
         <footer class="frame">
             {% block footer %}
-                You probably want to put something here...
+                {{ (
+                    'TIP: To login, use your Outlook username & password',
+                    'TIP: To change your Exchange password just logout then login again with the new password',
+                )|random }}
             {% endblock %}
         </footer>
     </body>
