@@ -13,7 +13,16 @@ body>header {
 
 body>article {
     top: 58px;
+    bottom: 41px;
+}
+
+body>footer {
     bottom: 0px;
+    height: 30px;
+    background-color: lightsteelblue;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
 }
 
 .frame {
@@ -105,16 +114,4 @@ body>article {
     border-radius: 5px;
     background: lightcoral;
     list-style-type: none;
-}
-
-.exchange_tip {
-    position: absolute;
-    left: 0px;
-    right: 0px;
-    bottom: 0px;
-    height: 30px;
-    background-color: lightsteelblue;
-    text-align: center;
-    font-size: 24px;
-    font-weight: bold;
 }

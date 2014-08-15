@@ -15,7 +15,6 @@
                 </button>
             </form>
             <br/>
-            To login, enter your Exchange details above.
             {%if error%}
                 <br/>
                 <div class="login_error frame">
@@ -25,4 +24,8 @@
             {%endif%}
         </span>
     </div>
+{% endblock %}
+
+{% block footer %}
+    TIP: To login, use your Outlook username & password
 {% endblock %}

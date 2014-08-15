@@ -5,6 +5,7 @@ A tool to read holidays from Cascade and write them to an Exchange calendar
 
 
 TODO:
+ * Randomise TIPs
  * Holiday vs bank holiday
  * Am vs pm
  * Sync more months
@@ -38,3 +39,4 @@ DONE:
  * Show user upcoming holidays on main page
  * Time how long tasks take
  * Show last sync status and age on main page
+ * Move TIP bar to the bottom & always show
