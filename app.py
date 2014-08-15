@@ -149,7 +149,7 @@ class User(db.Model):
             self.cascade_last_sync_diff_hours,
             self.exchange_last_sync_diff_hours,
         )
-        if max_last_sync_diff.days > 24:
+        if max_last_sync_diff > 24:
             # If it's been more than a day, there could be a problem
             return 'ok'
         # Otherwise, we're good
