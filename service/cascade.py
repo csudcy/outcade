@@ -54,7 +54,7 @@ class Cascade(object):
         # Return the logged in session
         return session
 
-    def _get_month_html(self, session, year, month):
+    def _get_calendar_html(self, session, year, month, months=1):
         """
         Get the calendar for the user in session for the given year and month.
         NOTE: month is 1 based
@@ -69,27 +69,22 @@ class Cascade(object):
             params={
                 'startyear': year,
                 'startmonth': month-1,
-                'monthstoshow': 1,
+                'monthstoshow': months,
             }
         )
         return calendar_response.text
 
-    def _parse_month_html(self, month_html):
+    def _parse_calendar_html(self, calendar_html):
         """
         Get the calendar for the user in session for the given year and month.
         """
         events = []
 
-        # Extract the rows
-        dom = pq(month_html)
-        rows = dom('#planner_content table tr')
-        if len(rows) != 3:
-            raise Exception('Month HTMl format is incorrect! Expected 3 table rows, got {0}'.format(
-                len(rows)
-            ))
+        # Extract the cells
+        dom = pq(calendar_html)
+        cells = dom('#planner_content table tr td[cd]')
 
         # Extract the date cells
-        cells = pq('td', rows[1])
         for cell in cells:
             # Check if this is a date cell
             current_date = cell.attrib.get('cd')
@@ -201,23 +196,6 @@ class Cascade(object):
 
         return results
 
-    def _sync_user_period(self, user, year, month):
-        """
-        Sync the given user with Cascade for the given period
-        NOTE: month is 1 based
-        Return stats about what happened
-        """
-        cascade_session = self._get_session(user)
-        month_html = self._get_month_html(
-            cascade_session,
-            year,
-            month
-        )
-        events = self._parse_month_html(month_html)
-        result = self._update_events(year, month, user, events)
-
-        return result
-
     def _sync_user(self, user):
         """
         Sync the given user with Cascade
@@ -228,14 +206,20 @@ class Cascade(object):
         year = now.year
         month = now.month
 
-        # Sync the next 2 months
-        results = {}
-        for i in xrange(2):
-            key = '%s-%s' % (year, month)
-            results[key] = self._sync_user_period(user, year, month)
-            year, month = utils.next_month(year, month)
+        # Get the info from cascade
+        cascade_session = self._get_session(user)
+        calendar_html = self._get_calendar_html(
+            cascade_session,
+            year,
+            month,
+            months=6,
+        )
+        events = self._parse_calendar_html(calendar_html)
 
-        return results
+        # Save it to DB
+        result = self._update_events(year, month, user, events)
+
+        return result
 
     @utils.record_runtime
     def sync_user(self, user):
