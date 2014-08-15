@@ -13,7 +13,6 @@ down_revision = '4d48f6961b08'
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
-#from sqlalchemy import sql
 
 
 # Make a temporary model of the event table

@@ -1,3 +1,4 @@
+from collections import namedtuple
 import base64
 import datetime
 import json
@@ -206,15 +207,11 @@ class User(db.Model):
 db.models.User = User
 
 class Event(db.Model):
-    PERIOD_TIMES = {
-        'AM': (8, 14),
-        'PM': (14, 20),
-        'AFD': (8, 20),
-    }
-    PERIOD_NAMES = {
-        'AM': 'Morning',
-        'PM': 'Afternoon',
-        'AFD': 'All Day',
+    PeriodInfo = namedtuple('PeriodInfo', ['start', 'end', 'name'])
+    PERIOD_INFO = {
+        'AM': PeriodInfo(8, 14, 'Morning'),
+        'PM': PeriodInfo(14, 20, 'Afternoon'),
+        'AFD': PeriodInfo(8, 20, 'All Day'),
     }
 
     id = db.Column(db.Integer, primary_key=True)
@@ -228,6 +225,7 @@ class Event(db.Model):
     user = db.relationship('User', backref='events')
     day = db.Column(db.Date(), nullable=False)
     period = db.Column(db.String(10), nullable=False) #AM, PM, AFD
+    event_type = db.Column(db.String(10), nullable=False) #BANK, REQUESTED, APPROVED
     updated = db.Column(db.Boolean(), nullable=False, default=True)
     deleted = db.Column(db.Boolean(), nullable=False, default=False)
 
@@ -239,25 +237,38 @@ class Event(db.Model):
     last_push = db.Column(db.DateTime())
 
     def __unicode__(self):
-        return '{date} : {period}'.format(
+        output = '{date} : {period}'.format(
             date=self.day.strftime('%d/%m/%Y'),
-            period=self.PERIOD_NAMES[self.period],
+            period=self.period_info.name,
         )
+        if self.event_type != 'APPROVED':
+            output += ' ({status})'.format(
+                status=self.event_type,
+            )
+        return output
+
+    @property
+    def period_info(self):
+        if self.period in self.PERIOD_INFO:
+            return self.PERIOD_INFO[self.period]
+        return {
+            'start': 8,
+            'end': 20,
+            'name': 'Unknown period - %s' % self.period,
+        }
 
     @property
     def start(self):
-        start_hour, end_hour = self.PERIOD_TIMES[self.period]
         return datetime.datetime.combine(
             self.day,
-            datetime.time(hour=start_hour)
+            datetime.time(hour=period_info.start)
         )
 
     @property
     def end(self):
-        start_hour, end_hour = self.PERIOD_TIMES[self.period]
         return datetime.datetime.combine(
             self.day,
-            datetime.time(hour=end_hour)
+            datetime.time(hour=period_info.end)
         )
 
 db.models.Event = Event
@@ -396,13 +407,15 @@ class UserSingleView(AuthenticateModelView):
 class EventView(AuthenticateModelView):
     column_list = (
         'user',
-        'start',
-        'end',
+        'day',
+        'period',
+        'event_type',
         'updated',
         'deleted',
         'last_update',
         'last_push',
     )
+    column_default_sort = 'day'
 
 
 admin = Admin(app)

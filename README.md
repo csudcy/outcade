@@ -5,11 +5,10 @@ A tool to read holidays from Cascade and write them to an Exchange calendar
 
 
 TODO:
- * Holiday vs bank holiday
- * Clear all events from Outlook
+ * Deal with updates (e.g. request being authorised)
+ * Mark all events as deleted/updated
  * About page
  * Fix timezone
- * Deal with updates (e.g. request being authorised)
  * Deal with other scenarios
   * What happens when there's a !
   * What happens when it's requested
@@ -43,3 +42,4 @@ DONE:
  * Sync in single shot
  * Sync more months
  * Am vs pm
+ * Holiday vs bank holiday

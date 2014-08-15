@@ -110,6 +110,7 @@ class Cascade(object):
             events.append({
                 'day': day,
                 'period': period,
+                'event_type': 'APPROVED',
             })
 
         return events
@@ -139,6 +140,7 @@ class Cascade(object):
                     self.db.models.Event.user == user,
                     self.db.models.Event.day == event_info['day'],
                     self.db.models.Event.period == event_info['period'],
+                    self.db.models.Event.event_type == event_info['event_type'],
                     self.db.models.Event.deleted == False,
                 ).one()
                 results['updated'] += 1
@@ -148,6 +150,7 @@ class Cascade(object):
                     user=user,
                     day=event_info['day'],
                     period=event_info['period'],
+                    event_type=event_info['event_type'],
                     updated=True,
                 )
                 self.db.session.add(event)
