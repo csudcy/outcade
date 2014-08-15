@@ -6,7 +6,6 @@ import os
 
 from flask import abort
 from flask import Flask
-from flask import g
 from flask import redirect
 from flask import render_template
 from flask import request
@@ -295,6 +294,7 @@ admin.add_view(UserAdminView(User, db.session))
 admin.add_view(EventView(Event, db.session))
 # Used for creating a form later
 user_single_view = UserSingleView(User, db.session)
+
 
 ##################################################
 #                    Routes
