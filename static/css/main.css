@@ -126,8 +126,14 @@ body>footer {
 td.calendar_cell_blank {
     border: none;
 }
+td.calendar_cell_today {
+    border: 2px solid green;
+}
 .calendar_cell_empty {
     background: #ccc;
+}
+.calendar_cell_old {
+    background: #888;
 }
 .calendar_cell_BANK {
     background: #a4a;

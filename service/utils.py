@@ -65,16 +65,19 @@ def generate_calendar(db, user, start_year, start_month, months):
     # Construct the calendar
     year = start_year
     month = start_month
+    today = datetime.date.today()
     class Day(object):
-        klass = 'blank'
+        klass = 'calendar_cell_blank'
         text = ''
         caption = ''
+        today = False
     event_calendar = []
     for x in xrange(months):
         # Generate 6 weeks of cells
         cells = [Day() for x in xrange(42)]
 
         # Get the days from calendar
+        #monthrange
         mc = calendar.monthcalendar(year, month)
         cell_days = [item for sublist in mc for item in sublist]
         # Remove 0's at the end
@@ -86,7 +89,12 @@ def generate_calendar(db, user, start_year, start_month, months):
         for i in xrange(len(cell_days)):
             if cell_days[i] != 0:
                 day = datetime.date(year=year, month=month, day=cell_days[i])
-                cells[i].klass = 'empty'
+                if day == today:
+                    cells[i].today = True
+                if day < today:
+                    cells[i].klass = 'calendar_cell_old'
+                else:
+                    cells[i].klass = 'calendar_cell_empty'
                 cells[i].text = cell_days[i]
                 cells[i].caption = day.strftime('%a, %b %d')
 
@@ -122,7 +130,7 @@ def generate_calendar(db, user, start_year, start_month, months):
 
         # Update the calendar
         calendar_cell = event_calendar[event_month]['cells'][event_day]
-        calendar_cell.klass = event.event_type
+        calendar_cell.klass = calendar_cell_ + event.event_type
         if event.period != 'AFD':
             calendar_cell.text = event.period
 

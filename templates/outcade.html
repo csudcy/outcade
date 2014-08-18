@@ -44,7 +44,7 @@
                     <tr>
                         <th>{{ month.header }}</th>
                         {% for cell in month.cells %}
-                            <td class="calendar_cell_{{ cell.klass }}" title="{{ cell.caption }}">
+                            <td class="{{ cell.klass }}{% if cell.today%} calendar_cell_today{% endif %}" title="{{ cell.caption }}">
                                 {{ cell.text }}
                             </td>
                         {% endfor %}

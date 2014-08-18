@@ -5,6 +5,7 @@ A tool to read holidays from Cascade and write them to an Exchange calendar
 
 
 TODO:
+ * Improve users own edit form
  * Deal with updates (e.g. request being authorised)
  * Mark all events as deleted/updated
  * About page
@@ -41,3 +42,4 @@ DONE:
  * Am vs pm
  * Holiday vs bank holiday
  * Calendar view on main page
+ * Show past days differently
