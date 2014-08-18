@@ -518,7 +518,7 @@ def production():
     Run the server in production mode
     """
     # Turn off debug on live...
-    #app.debug = False
+    app.debug = False
 
     # Upgrade the DB
     from flask.ext.migrate import upgrade

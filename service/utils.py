@@ -123,7 +123,7 @@ def generate_calendar(db, user, start_year, start_month, months):
 
         # Update the calendar
         calendar_cell = event_calendar[event_month]['cells'][event_day]
-        calendar_cell.klass = calendar_cell_ + event.event_type
+        calendar_cell.klass = 'calendar_cell_{0}'.format(event.event_type)
         if event.period != 'AFD':
             calendar_cell.text = event.period
 
