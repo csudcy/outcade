@@ -78,29 +78,22 @@ def generate_calendar(db, user, start_year, start_month, months):
 
         # Get the days from calendar
         #monthrange
-        mc = calendar.monthcalendar(year, month)
-        cell_days = [item for sublist in mc for item in sublist]
-        # Remove 0's at the end
-        while cell_days[-1] == 0:
-            cell_days = cell_days[:-1]
-        if cell_days[1] != 0:
+        first_weekday, month_length = calendar.monthrange(year, month)
+        if first_weekday < 2:
             # It looks weird if anything starts on the first few days...
-            cell_days = [0]*7 + cell_days
-        for i in xrange(len(cell_days)):
-            if cell_days[i] != 0:
-                day = datetime.date(year=year, month=month, day=cell_days[i])
-                if day == today:
-                    cells[i].today = True
-                if day < today:
-                    cells[i].klass = 'calendar_cell_old'
-                else:
-                    cells[i].klass = 'calendar_cell_empty'
-                cells[i].text = cell_days[i]
-                cells[i].caption = day.strftime('%a, %b %d')
-
-        # Work out the start day for this month
-        cell_days_pre = [cd for cd in cell_days if cd == 0]
-        days_pre = len(cell_days_pre)
+            first_weekday += 7
+        for i in xrange(month_length):
+            day_number = i + 1
+            cell_index = i + first_weekday
+            day = datetime.date(year=year, month=month, day=day_number)
+            if day == today:
+                cells[cell_index].today = True
+            if day < today:
+                cells[cell_index].klass = 'calendar_cell_old'
+            else:
+                cells[cell_index].klass = 'calendar_cell_empty'
+            cells[cell_index].text = day_number
+            cells[cell_index].caption = day.strftime('%a, %b %d')
 
         # Get the row header
         first_day = datetime.date(year=year, month=month, day=1)
@@ -109,7 +102,7 @@ def generate_calendar(db, user, start_year, start_month, months):
         # Add this row to the list
         event_calendar.append({
             'header': header,
-            'days_pre': days_pre,
+            'days_pre': first_weekday,
             'cells': cells,
         })
 
